@@ -1,7 +1,7 @@
 package query1;
 
 
-import query1.operators.CountWindowComment;
+import query1.operators.CountArticleComment;
 import query1.operators.TopN;
 import query1.operators.TopN_Sliding;
 import model.ArticleRank;
@@ -51,7 +51,7 @@ public class MainQuery1 {
                 .keyBy(t -> t.f0)
                 .timeWindow(Time.hours(1))
                 //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
-                .process(new CountWindowComment());
+                .process(new CountArticleComment());
 
         //hour.print();
         DataStream<ArticleRank> hourStat = hour
@@ -79,7 +79,7 @@ public class MainQuery1 {
 
         //.addSink(flinkKafkaProducer);*/
         //environment.setParallelism(1);
-        environment.execute("prova");
+        environment.execute("Query1");
     }
 
 

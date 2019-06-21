@@ -26,8 +26,8 @@ public class FlinkUtils {
 
     public static Integer getTimeSlot(Post post) {
         int timeSlot = 0;
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
-        DateTime date = dtf.parseDateTime(String.valueOf(post.getCreateDate()));
+        //DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+        DateTime date = new DateTime(post.getCreateDate());
         int hour = date.getHourOfDay();
         if ( hour>=0 & hour<2){
             timeSlot = 0;
