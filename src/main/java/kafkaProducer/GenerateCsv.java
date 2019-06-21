@@ -1,10 +1,7 @@
 package kafkaProducer;
 
 import com.opencsv.CSVWriter;
-import model.Config;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import utils.Config;
 
 import java.io.FileWriter;
 import java.io.IOException;

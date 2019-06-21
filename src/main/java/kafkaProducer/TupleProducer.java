@@ -1,23 +1,17 @@
 package kafkaProducer;
 
 import com.opencsv.CSVReader;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import model.Config;
+import utils.Config;
 import model.Post;
 import model.PostSerializer;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.LongSerializer;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
