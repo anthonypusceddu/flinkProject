@@ -1,29 +1,24 @@
 package Query1;
 
-import com.google.common.collect.Lists;
+
 import model.Config;
 import model.Post;
 import model.PostSchema;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.flink.api.common.functions.AggregateFunction;
-import org.apache.flink.api.common.functions.FilterFunction;
+
+
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
+
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.functions.KeySelector;
+
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
-import org.apache.flink.streaming.api.functions.windowing.ReduceApplyProcessWindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -31,10 +26,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -85,7 +77,7 @@ public class Main {
         DataStream<Post> stringInputStream = environment
                 .addSource(flinkKafkaConsumer);
 
-        DataStream<Tuple3<Long,String, Integer>> temp = stringInputStream
+        DataStream<Tuple3<Long,String, Integer>> hour = stringInputStream
                 .map(new MapFunction<Post, Tuple2<String,Integer>>() {
                     @Override
                     public Tuple2<String, Integer> map(Post post) throws Exception {
@@ -93,51 +85,85 @@ public class Main {
                     }
                 })
                 .keyBy(t -> t.f0)
-                .timeWindow(Time.days(1))
-                //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(5)) )
+                .timeWindow(Time.hours(1))
+                //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
                 .process(new CountWindowsArticle());
-        //temp.print();
+
+        //hour.print();
+
+        /*DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> hourStat = hour
+                .timeWindowAll(Time.hours(1))
+                .apply(new TopN())
+                .setParallelism(1);
+        hourStat.print();*/
 
 
+        /*DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> DayStat = hour
+                .timeWindowAll(Time.hours(24),Time.hours(1))
+                .apply(new TopN_sliding())
+                .setParallelism(1);
+        DayStat.print();*/
 
-        DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> print = temp
-                .keyBy(r->r.f1)
-                .timeWindowAll(Time.days(1))
-                .apply(new AllWindowFunction<Tuple3<Long, String, Integer>, Tuple2<Long,List<Tuple2<String, Integer>>>, TimeWindow>() {
-                    @Override
-                    public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, String, Integer>> iterable, Collector<Tuple2<Long,List<Tuple2<String, Integer>>>> collector) throws Exception {
-                        //System.out.println("WindowsAll "+ "size: "+ IterableUtils.size(iterable));
-                        List<Tuple2<String, Integer>> list = new ArrayList<>();
-                        long min = iterable.iterator().next().f0;
-                        for( Tuple3<Long, String, Integer> t : iterable){
-                            if (t.f0<min){
-                                min = t.f0;
-                            }
-                            list.add(new Tuple2<>(t.f1,t.f2));
-                        }
-                        list = list
-                                .stream()
-                                .sorted((o1, o2) -> Integer.compare(o2.f1,o1.f1) )
-                                .limit(3).collect(Collectors.toList());
-                        collector.collect(new Tuple2<>(min,list));
-                    }
-                });
-        //.addSink(flinkKafkaProducer);
-        print.print();
-        environment.setParallelism(1);
+
+        DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
+                .timeWindowAll(Time.days(7),Time.hours(24))
+                .apply(new TopN_sliding())
+                .setParallelism(1);
+        WeekStat.print();
+
+
+        //.addSink(flinkKafkaProducer);*/
+        //environment.setParallelism(1);
         environment.execute("prova");
     }
 
+    public static class TopN_sliding implements AllWindowFunction<Tuple3<Long, String, Integer>, Tuple2<Long,List<Tuple2<String, Integer>>>, TimeWindow> {
+        @Override
+        public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, String, Integer>> iterable, Collector<Tuple2<Long,List<Tuple2<String, Integer>>>> collector) throws Exception {
+            List<Tuple2<String, Integer>> list = new ArrayList<>();
+            HashMap<String,Integer> map = new HashMap<>();
+            for( Tuple3<Long, String, Integer> t : iterable){
+                String key = t.f1;
+                int value = t.f2;
+                if (map.containsKey(key)){
+                    map.put(key,map.get(key)+value);
+                }else {
+                    map.put(key, value);
+                }
+            }
+            for ( String k : map.keySet()){
+                Tuple2<String,Integer> tuple= new Tuple2<>(k,map.get(k));
+                list.add(tuple);
+            }
+            list = list
+                    .stream()
+                    .sorted((o1, o2) -> Integer.compare(o2.f1,o1.f1) )
+                    .limit(3).collect(Collectors.toList());
+            collector.collect(new Tuple2<>(timeWindow.getEnd(),list));
+        }
+    }
 
-
-
+    public static class TopN implements AllWindowFunction<Tuple3<Long, String, Integer>, Tuple2<Long,List<Tuple2<String, Integer>>>, TimeWindow> {
+        @Override
+        public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, String, Integer>> iterable, Collector<Tuple2<Long,List<Tuple2<String, Integer>>>> collector) throws Exception {
+            List<Tuple2<String, Integer>> list = new ArrayList<>();
+            for( Tuple3<Long, String, Integer> t : iterable){
+                list.add(new Tuple2<>(t.f1,t.f2));
+            }
+            list = list
+                    .stream()
+                    .sorted((o1, o2) -> Integer.compare(o2.f1,o1.f1) )
+                    .limit(3).collect(Collectors.toList());
+            collector.collect(new Tuple2<>(timeWindow.getEnd(),list));
+        }
+    }
 
     public static class CountWindowsArticle extends ProcessWindowFunction<
             Tuple2<String,Integer>, Tuple3<Long, String, Integer>, String, TimeWindow> {
         @Override
         public void process(String key, Context context, Iterable<Tuple2<String,Integer>> articleList, Collector<Tuple3<Long, String, Integer>> out) throws Exception {
-          //  int count= 0;
-           // System.out.println("Windows "+ "key:" + key + "size: "+ IterableUtils.size(articleList));
+            //  int count= 0;
+            // System.out.println("Windows "+ "key:" + key + "size: "+ IterableUtils.size(articleList));
           /*  for (Tuple2<String,Integer> a : articleList) {
                 count += 1;
             }*/
@@ -145,6 +171,5 @@ public class Main {
             out.collect(new Tuple3<>(context.window().getStart(), key, IterableUtils.size(articleList)));
         }
     }
-    
 }
 
