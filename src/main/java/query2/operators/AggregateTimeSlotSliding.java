@@ -14,7 +14,7 @@ public class AggregateTimeSlotSliding implements AllWindowFunction<Tuple3<Long, 
     @Override
     public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, Integer, Integer>> iterable, Collector<Tuple2<Long, Map<Integer, Integer>>> collector) throws Exception {
         Map<Integer,Integer> treeMap = new TreeMap<>();
-        System.out.println(iterable);
+        //System.out.println(iterable);
         for( Tuple3<Long, Integer, Integer> t : iterable){
             if (treeMap.containsKey(t.f1)){
                 treeMap.put(t.f1,treeMap.get(t.f1) + t.f2);
