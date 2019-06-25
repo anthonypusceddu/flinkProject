@@ -51,7 +51,7 @@ public class MainQuery1 {
                 .keyBy(t -> t.f0)
                 .timeWindow(Time.hours(1))
                 //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
-                .process(new CountArticleComment());
+                .apply(new CountArticleComment());
 
         //hour.print();
         DataStream<ArticleRank> hourStat = hour

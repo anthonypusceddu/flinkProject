@@ -13,6 +13,8 @@ public class CountDirectLike extends ProcessWindowFunction<
         Tuple6<Integer,String,Boolean,Integer,Integer,Integer>, Tuple3<Long, Integer, Integer>, Integer, TimeWindow> {
     @Override
     public void process(Integer key, Context context, Iterable<Tuple6<Integer,String,Boolean,Integer,Integer,Integer>> commentList, Collector<Tuple3<Long, Integer, Integer>> out) throws Exception {
-        out.collect(new Tuple3<>(context.window().getStart(), key,  Lists.newArrayList(commentList.iterator().next().f3).stream().reduce(0, (a, b) -> a + b)));
+
+
+        out.collect(new Tuple3<>(context.window().getStart(), key,  Lists.newArrayList(commentList.iterator().next().f3).stream().reduce(key, Integer::sum)));
     }
 }

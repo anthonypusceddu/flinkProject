@@ -44,19 +44,25 @@ public class TupleProducer {
         t.setCommentType(values[4]);
         t.setCreateDate(Long.valueOf(values[5])*1000);
         t.setDepth(Integer.valueOf(values[6]));
-        /*t.setEditorsSelection(Boolean.valueOf(values[7]));
+        t.setEditorsSelection(Boolean.valueOf(values[7]));
         t.setInReplyTo(Integer.valueOf(values[8]));
         t.setParentUserDispalyName(values[9]);
-        t.setRecommendations(Integer.valueOf(values[10]));
+        try{
+            t.setRecommendations(Integer.valueOf(values[10]));
+        }catch ( NumberFormatException e){
+            t.setRecommendations(-1);
+        }
+        //t.setRecommendations(Integer.valueOf(values[10]));
         t.setSectionName(values[11]);
         t.setUserDisplayName(values[12]);
         try{
             t.setUserID(Integer.valueOf(values[13]));
         }catch ( NumberFormatException e){
+            t.setUserID(-1);
         }
         //t.setUserID(Integer.valueOf(values[13]));
         t.setUserLocation(values[14]);
-*/
+
         return t;
     }
 
@@ -74,6 +80,7 @@ public class TupleProducer {
             }
             reader.close();
             csvReader.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

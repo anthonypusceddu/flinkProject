@@ -6,23 +6,20 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 import query2.operators.AggregateTimeSlot;
 import query2.operators.AggregateTimeSlotSliding;
 import query2.operators.CountTimeSlotComment;
-import query2.operators.CountWithTimeoutFunction;
 import utils.Config;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
 import utils.PostTimestampAssigner;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainQuery2 {
@@ -58,7 +55,7 @@ public class MainQuery2 {
                 })
                 .keyBy(t -> t.f0)
                 .timeWindow(Time.hours(24))
-                .process(new CountTimeSlotComment());
+                .apply(new CountTimeSlotComment());
 
         //day.print();
 
