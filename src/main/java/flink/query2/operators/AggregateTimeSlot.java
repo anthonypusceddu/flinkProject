@@ -1,6 +1,5 @@
-package query2.operators;
+package flink.query2.operators;
 
-import model.ArticleRank;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
@@ -8,7 +7,6 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AggregateTimeSlot implements AllWindowFunction<Tuple3<Long, Integer, Integer>, Tuple2<Long, Map<Integer,Integer> >, TimeWindow> {
     @Override

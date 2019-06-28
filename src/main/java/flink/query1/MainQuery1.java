@@ -1,9 +1,9 @@
-package query1;
+package flink.query1;
 
 
-import query1.operators.CountArticleComment;
-import query1.operators.TopN;
-import query1.operators.TopN_Sliding;
+import flink.query1.operators.CountArticleComment;
+import flink.query1.operators.TopN;
+import flink.query1.operators.TopN_Sliding;
 import model.ArticleRank;
 import org.apache.flink.core.fs.FileSystem;
 import utils.Config;
@@ -41,7 +41,7 @@ public class MainQuery1 {
         DataStream<Post> stringInputStream = environment
                 .addSource(flinkKafkaConsumer);
 
-        DataStream<Tuple3<Long,String, Integer>> hour = stringInputStream
+        DataStream<Tuple2<String, Integer>> hour = stringInputStream
                 .map(new MapFunction<Post, Tuple2<String,Integer>>() {
                     @Override
                     public Tuple2<String, Integer> map(Post post) throws Exception {
@@ -51,13 +51,13 @@ public class MainQuery1 {
                 .keyBy(t -> t.f0)
                 .timeWindow(Time.hours(1))
                 //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
-                .apply(new CountArticleComment());
+                .sum(1);
 
         //hour.print();
-        DataStream<ArticleRank> hourStat = hour
+        /*DataStream<ArticleRank> hourStat = hour
                 .timeWindowAll(Time.hours(1))
                 .apply(new TopN())
-                .setParallelism(1);
+                .setParallelism(1);*/
         //hourStat.print();
         //hourStat.writeAsCsv("1HourTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
@@ -65,15 +65,16 @@ public class MainQuery1 {
                 .timeWindowAll(Time.hours(24),Time.hours(1))
                 .apply(new TopN_Sliding())
                 .setParallelism(1);
-        //DayStat.print();
-        DayStat.writeAsCsv("1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
-        DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
+        //DayStat.print();
+        //DayStat.writeAsCsv("1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
+
+        /*DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
                 .timeWindowAll(Time.days(7),Time.hours(24))
                 .apply(new TopN_Sliding())
-                .setParallelism(1);
+                .setParallelism(1);*/
         //WeekStat.print();
-        WeekStat.writeAsCsv("1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);;
+        //WeekStat.writeAsCsv("1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);;
 
 
 

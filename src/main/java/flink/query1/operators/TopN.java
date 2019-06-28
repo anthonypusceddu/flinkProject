@@ -1,4 +1,4 @@
-package query1.operators;
+package flink.query1.operators;
 
 import model.ArticleRank;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TopN implements AllWindowFunction<Tuple3<Long, String, Integer>, ArticleRank, TimeWindow> {
+public class TopN implements AllWindowFunction<Tuple2< String, Integer>, ArticleRank, TimeWindow> {
 
     @Override
-    public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, String, Integer>> iterable, Collector<ArticleRank> collector) throws Exception {
+    public void apply(TimeWindow timeWindow, Iterable<Tuple2< String, Integer>> iterable, Collector<ArticleRank> collector) throws Exception {
         List<Tuple2<String, Integer>> list = new ArrayList<>();
-        for( Tuple3<Long, String, Integer> t : iterable){
-            list.add(new Tuple2<>(t.f1,t.f2));
+        for( Tuple2<String, Integer> t : iterable){
+            list.add(new Tuple2<>(t.f0,t.f1));
         }
         list = list
                 .stream()

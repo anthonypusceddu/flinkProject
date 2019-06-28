@@ -1,4 +1,4 @@
-package query2.operators;
+package flink.query2.operators;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -6,7 +6,6 @@ import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 

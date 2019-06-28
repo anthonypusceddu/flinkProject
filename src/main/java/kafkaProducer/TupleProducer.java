@@ -102,7 +102,7 @@ public class TupleProducer {
         producer.send(primo);
         long current_time = first.getCreateDate();
         try {
-            for (int i = 0; i<postList.size()-1; i++) {
+            for (int i = 0; i<postList.size() -1; i++) {
                 Post current = postList.get(i);
                 Post next = postList.get(i+1);
                 long rate = next.getCreateDate() - current_time; // millisecondi

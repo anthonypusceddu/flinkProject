@@ -4,7 +4,6 @@ import model.ArticleRank;
 import model.ArticleRankSchema;
 import model.Post;
 import model.PostSchema;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
