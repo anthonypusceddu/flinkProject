@@ -10,12 +10,13 @@ public class Comment {
     private int count;
 
 
-    public Comment(int userID, int commentID, int depth, int inReplyTo, int recommendations) {
+    public Comment(int userID, int commentID, int depth, int inReplyTo, int recommendations, int count) {
         this.userID = userID;
         this.commentID = commentID;
         this.depth = depth;
         this.inReplyTo = inReplyTo;
         this.recommendations = recommendations;
+        this.count = count;
     }
 
     public Comment() {

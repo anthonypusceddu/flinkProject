@@ -1,11 +1,16 @@
 package query3;
 
+import model.Comment;
 import model.Post;
+import model.State;
 import org.apache.flink.api.common.functions.*;
+import org.apache.flink.api.common.state.ValueState;
+import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -17,6 +22,9 @@ import utils.Config;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
 import utils.PostTimestampAssigner;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class MainQuery3 {
 
@@ -46,47 +54,52 @@ public class MainQuery3 {
                 });
         //input ( UserId, Depth, Like, InReplyTo, CommentID)
         //return ( Ts, CommentIdOfLevel2, countOfLevel3Comment)
-        DataStream<Tuple3<Long, Integer, Integer>> numberOfDepth2Comment = getData
-                .filter(new FilterFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Integer, Integer, Integer, Integer, Integer> tuple5) throws Exception {
-                        return tuple5.f1==3;
-                    }
-                })
-                .keyBy(t -> t.f3)
-                .timeWindow(Time.hours(24))
-                .apply(new CountReplyDepth3());
-        numberOfDepth2Comment.print();
 
-        //( UserId, Depth, Like, InReplyTo, CommentID) join ( Ts, CommentIdOfLevel2, countOfLevel3Comment )
-                                     // on CommentID = CommentIdOfLevel2
 
-        DataStream<Tuple3<Long, Integer,Integer>> depth2Comment = getData
-                .filter(new FilterFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
+
+        DataStream<HashMap> numberOfDepth2Comment = getData
+                .process(new ProcessFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>, HashMap>() {
+                    private ValueState<State> valueState;
+
+                    //initialize state
                     @Override
-                    public boolean filter(Tuple5<Integer, Integer, Integer, Integer, Integer> tuple5) throws Exception {
-                        return tuple5.f1==2;
+                    public void open(Configuration parameters) throws Exception {
+                        super.open(parameters);
+                        this.valueState= getRuntimeContext().getState(new ValueStateDescriptor<>("myState",State.class));
                     }
-                })
-                .keyBy(t->t.f4)
-                .timeWindow(Time.hours(24))
-                .apply(new WindowFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>, Tuple3<Long, Integer, Integer>, Integer, TimeWindow>() {
+
                     @Override
-                    public void apply(Integer key, TimeWindow timeWindow, Iterable<Tuple5<Integer, Integer, Integer, Integer, Integer>> iterable, Collector<Tuple3<Long, Integer, Integer>> out) throws Exception {
-                        out.collect(new Tuple3<>(timeWindow.getStart(),key,1));
+                    //input ( UserId, Depth, Like, InReplyTo, CommentID)
+                    public void processElement(Tuple5<Integer, Integer, Integer, Integer, Integer> value, Context ctx, Collector<HashMap> out) throws Exception {
+
+                        Comment comment= new Comment(value.f0,value.f4,value.f1,value.f3,value.f2,0);
+                        switch (value.f1){
+                            case 1:
+                                valueState.value().updateHashmapDirect(comment.getCommentID(),comment);
+                                break;
+                            case 2:
+                                this.valueState.value().updateHashmapIndirect(comment.getCommentID(),comment.getInReplyTo());
+                                this.valueState.value().add(comment.getInReplyTo());
+                                break;
+                            case 3:
+                                Integer commentIdDepth1=valueState.value().getIdIndirectHash(comment.getInReplyTo());
+                                if( commentIdDepth1 != null)
+                                    this.valueState.value().add(commentIdDepth1);
+
+                                break;
+                        }
+                        if (valueState.value().isFirstTimeInWindow()) {
+                            valueState.value().setFirstTimeInWindow(false);
+                            valueState.value().setTimestamp(ctx.timestamp());
+                        }
+                        else{
+                            if (ctx.timestamp()-valueState.value().getTimestamp() >= 8640000){
+                                out.collect(valueState.value().getHdirectComment());
+                                valueState.clear();
+                            }
+                        }
                     }
                 });
-        DataStream<Tuple3<Long,Integer,Integer>> prova = depth2Comment
-                .join(numberOfDepth2Comment)
-                .where(t -> t.f1).equalTo(t1 -> t1.f1)
-                .window(TumblingEventTimeWindows.of(Time.hours(24)))
-                .apply(new JoinFunction<Tuple3<Long, Integer, Integer>, Tuple3<Long, Integer, Integer>, Tuple3<Long, Integer, Integer>>() {
-                    @Override
-                    public Tuple3<Long, Integer, Integer> join(Tuple3<Long, Integer, Integer> t, Tuple3<Long, Integer, Integer> t1) throws Exception {
-                        return new Tuple3<>();
-                    }
-                });
-        //numberOfComment.print();
 
         environment.execute("Query3");
 
