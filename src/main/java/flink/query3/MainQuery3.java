@@ -1,5 +1,6 @@
-package query3;
+package flink.query3;
 
+import flink.query3.operators.MyProcessFunction;
 import model.Comment;
 import model.Post;
 import model.State;
@@ -17,7 +18,6 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
-import query3.operators.CountReplyDepth3;
 import utils.Config;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
@@ -57,49 +57,11 @@ public class MainQuery3 {
 
 
 
-        DataStream<HashMap> numberOfDepth2Comment = getData
-                .process(new ProcessFunction<Tuple5<Integer, Integer, Integer, Integer, Integer>, HashMap>() {
-                    private ValueState<State> valueState;
+        DataStream<Tuple2<Long,HashMap>> popularUserMap = getData
+                .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
+                .process(new MyProcessFunction());
 
-                    //initialize state
-                    @Override
-                    public void open(Configuration parameters) throws Exception {
-                        super.open(parameters);
-                        this.valueState= getRuntimeContext().getState(new ValueStateDescriptor<>("myState",State.class));
-                    }
-
-                    @Override
-                    //input ( UserId, Depth, Like, InReplyTo, CommentID)
-                    public void processElement(Tuple5<Integer, Integer, Integer, Integer, Integer> value, Context ctx, Collector<HashMap> out) throws Exception {
-
-                        Comment comment= new Comment(value.f0,value.f4,value.f1,value.f3,value.f2,0);
-                        switch (value.f1){
-                            case 1:
-                                valueState.value().updateHashmapDirect(comment.getCommentID(),comment);
-                                break;
-                            case 2:
-                                this.valueState.value().updateHashmapIndirect(comment.getCommentID(),comment.getInReplyTo());
-                                this.valueState.value().add(comment.getInReplyTo());
-                                break;
-                            case 3:
-                                Integer commentIdDepth1=valueState.value().getIdIndirectHash(comment.getInReplyTo());
-                                if( commentIdDepth1 != null)
-                                    this.valueState.value().add(commentIdDepth1);
-
-                                break;
-                        }
-                        if (valueState.value().isFirstTimeInWindow()) {
-                            valueState.value().setFirstTimeInWindow(false);
-                            valueState.value().setTimestamp(ctx.timestamp());
-                        }
-                        else{
-                            if (ctx.timestamp()-valueState.value().getTimestamp() >= 8640000){
-                                out.collect(valueState.value().getHdirectComment());
-                                valueState.clear();
-                            }
-                        }
-                    }
-                });
+        popularUserMap.print();
 
         environment.execute("Query3");
 

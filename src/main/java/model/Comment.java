@@ -7,27 +7,16 @@ public class Comment {
     private int depth;
     private int inReplyTo;
     private int recommendations;
-    private int count;
 
-
-    public Comment(int userID, int commentID, int depth, int inReplyTo, int recommendations, int count) {
+    public Comment(int userID, int commentID, int depth, int inReplyTo, int recommendations) {
         this.userID = userID;
         this.commentID = commentID;
         this.depth = depth;
         this.inReplyTo = inReplyTo;
         this.recommendations = recommendations;
-        this.count = count;
     }
 
     public Comment() {
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     public int getUserID() {
