@@ -142,4 +142,9 @@ public class Post {
     public void setUserLocation(String userLocation) {
         this.userLocation = userLocation;
     }
+
+    @Override
+    public String toString() {
+        return "time: "+this.createDate+"\t userID: "+this.userID;
+    }
 }

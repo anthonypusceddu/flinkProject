@@ -25,11 +25,13 @@ public class State {
     public void updateLikeScore(Integer usrID,Integer like){
         Score s = this.hUserScore.get(usrID);
         s.addLike(like);
+        s.calculateScore();
         this.hUserScore.replace(usrID,s);
     }
     public void updateCountScore(Integer usrID){
         Score s = this.hUserScore.get(usrID);
         s.addCount(1);
+        s.calculateScore();
         this.hUserScore.replace(usrID,s);
     }
 
@@ -83,7 +85,7 @@ public class State {
 
 
     public int retrieveUsrIdFromMap(int replyTo) {
-        return LvL1ToUsrIdMap.get(replyTo);
+        return LvL1ToUsrIdMap.getOrDefault(replyTo, -1);
 
     }
 
@@ -92,7 +94,7 @@ public class State {
     }
 
     public int retrieveCommentIdfromMap(int replyTo) {
-        return  LvL2ToLvL1Map.get(replyTo);
+        return  LvL2ToLvL1Map.getOrDefault(replyTo, -1);
     }
 
     public void reset(long l) {
@@ -101,6 +103,14 @@ public class State {
             Score s = hUserScore.get(usr);
             s.clearScore();
             hUserScore.replace(usr,s);
+        }
+    }
+
+    public void updateScore() {
+        for ( int user : this.hUserScore.keySet() ){
+            Score s = this.hUserScore.get(user);
+            s.calculateScore();
+            this.hUserScore.replace(user,s);
         }
     }
 }

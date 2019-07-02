@@ -53,19 +53,19 @@ public class MainQuery1 {
                 //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
                 .sum(1);
 
-        //hour.print();
+        hour.print();
         /*DataStream<ArticleRank> hourStat = hour
                 .timeWindowAll(Time.hours(1))
                 .apply(new TopN())
-                .setParallelism(1);*/
-        //hourStat.print();
+                .setParallelism(1);
+        hourStat.print();
         //hourStat.writeAsCsv("1HourTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
         DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> DayStat = hour
                 .timeWindowAll(Time.hours(24),Time.hours(1))
                 .apply(new TopN_Sliding())
                 .setParallelism(1);
-
+*/
         //DayStat.print();
         //DayStat.writeAsCsv("1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 

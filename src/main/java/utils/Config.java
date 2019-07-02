@@ -6,7 +6,7 @@ public class Config {
     public static final String filename = ROOT + "post.csv";
     public static final String delimiter = ",";
     public static final String TOPIC = "test";
-    public static final Long START =1514764800000L ;
+    public static final Long START =1514764800000L;
     public static final Long H24 =86400000L ;
 
     public static String kafkaBrokerList = "localhost:9092";

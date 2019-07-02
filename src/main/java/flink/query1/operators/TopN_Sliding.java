@@ -17,7 +17,7 @@ public class TopN_Sliding implements AllWindowFunction<Tuple2<String, Integer>, 
     public void apply(TimeWindow timeWindow, Iterable<Tuple2<String, Integer>> iterable, Collector<Tuple2<Long,List<Tuple2<String, Integer>>>> collector) throws Exception {
         List<Tuple2<String, Integer>> list = new ArrayList<>();
         HashMap<String,Integer> map = new HashMap<>();
-        System.out.println(iterable);
+        //System.out.println(iterable);
 
         for( Tuple2<String, Integer> t : iterable){
             String key = t.f0;

@@ -1,5 +1,7 @@
 package model;
 
+import utils.Config;
+
 public class Score {
 
     private int like;
@@ -45,5 +47,9 @@ public class Score {
     @Override
     public String toString() {
         return "Like: "+ this.like +"\t Count: "+ this.indirect_comment_count;
+    }
+
+    public void calculateScore() {
+        this.score = Config.wa * this.like + Config.wb * this.indirect_comment_count;
     }
 }
