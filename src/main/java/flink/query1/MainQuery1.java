@@ -67,7 +67,7 @@ public class MainQuery1 {
 
         //Scrittura su file -- cambiare nome del file _1hour, _24hours , _7days
         //a seconda della finestra
-        hour.writeAsCsv("result/query1_1hour.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        hour.writeAsCsv("result/Query1/query1_1hour.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
 
         /*DataStream<ArticleRank> hourStat = hour

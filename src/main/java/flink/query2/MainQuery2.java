@@ -78,7 +78,7 @@ public class MainQuery2 {
         //dayStat.print();
 
         //dayStat.writeAsText("result/query2_day").setParallelism(1);
-        dayStat.writeAsCsv("result/query2_day.csv", FileSystem.WriteMode.NO_OVERWRITE, "\n", "{").setParallelism(1);
+        dayStat.writeAsCsv("result/Query2/query2_day.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
 
         /* aggregation by 7 days

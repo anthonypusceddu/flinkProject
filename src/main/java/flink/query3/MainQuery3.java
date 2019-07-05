@@ -69,7 +69,7 @@ public class MainQuery3 {
         //popularUserMap.print();
 
         //popularUserMap.writeAsText("result/query3").setParallelism(1);
-        popularUserMap.writeAsCsv("result/query3.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        popularUserMap.writeAsCsv("result/Query3/query3.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
         environment.execute("Query3");
 
