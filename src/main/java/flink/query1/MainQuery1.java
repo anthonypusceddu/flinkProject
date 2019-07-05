@@ -19,6 +19,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
 import utils.PostTimestampAssigner;
+
+import javax.sql.DataSource;
 import java.util.*;
 
 public class MainQuery1 {
@@ -27,9 +29,11 @@ public class MainQuery1 {
 
         //create environment
         StreamExecutionEnvironment environment = FlinkUtils.setUpEnvironment(args);
+
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
                 Config.TOPIC, Config.kafkaBrokerList, Config.consumerGroup);
+
         // create kafka producer
         FlinkKafkaProducer<ArticleRank> flinkKafkaProducer =
                 KafkaUtils.createStringProducer(Config.OutTOPIC, Config.kafkaBrokerList);
@@ -41,6 +45,12 @@ public class MainQuery1 {
         DataStream<Post> stringInputStream = environment
                 .addSource(flinkKafkaConsumer);
 
+        /*query starts here
+          map to (articleID, occurrencies set to 1)
+          keyBy sets the key
+          tumbling window of 1 hour / 24 hours / 7 days
+          sum the occurrencies of articleID
+         */
         DataStream<Tuple2<String, Integer>> hour = stringInputStream
                 .map(new MapFunction<Post, Tuple2<String,Integer>>() {
                     @Override
@@ -53,7 +63,13 @@ public class MainQuery1 {
                 //.window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) )
                 .sum(1);
 
-        hour.print();
+        //hour.print();
+
+        //Scrittura su file -- cambiare nome del file _1hour, _24hours , _7days
+        //a seconda della finestra
+        hour.writeAsCsv("result/query1_1hour.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+
+
         /*DataStream<ArticleRank> hourStat = hour
                 .timeWindowAll(Time.hours(1))
                 .apply(new TopN())

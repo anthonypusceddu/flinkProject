@@ -5,8 +5,10 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import flink.query2.operators.AggregateTimeSlot;
@@ -22,8 +24,10 @@ import java.util.Map;
 public class MainQuery2 {
 
     public static void main(String[] args) throws Exception {
+
         //create environment
         StreamExecutionEnvironment environment = FlinkUtils.setUpEnvironment(args);
+
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
                 Config.TOPIC, Config.kafkaBrokerList, Config.consumerGroup);
@@ -36,7 +40,13 @@ public class MainQuery2 {
                 .addSource(flinkKafkaConsumer);
 
 
-        //(Fascia Oraria, 1)
+        /*query starts here
+          filter only direct comments
+          map to (TimeSlot, occurencies set to 1)
+          keyBy
+          tumbling window of 24 hours / 7 days / 1 month
+          custom function apply
+         */
         DataStream<Tuple3<Long, Integer, Integer>> day = stringInputStream
                 .filter(new FilterFunction<Post>() {
                     @Override
@@ -56,23 +66,51 @@ public class MainQuery2 {
 
         //day.print();
 
+
+        /* aggregation by 1 day
+           tumbling window all
+           custom function apply
+        */
         DataStream<Tuple2<Long, Map<Integer,Integer>>> dayStat = day
                 .timeWindowAll(Time.hours(24))
                 .apply(new AggregateTimeSlot())
                 .setParallelism(1);
         //dayStat.print();
 
+        //dayStat.writeAsText("result/query2_day").setParallelism(1);
+        dayStat.writeAsCsv("result/query2_day.csv", FileSystem.WriteMode.NO_OVERWRITE, "\n", "{").setParallelism(1);
+
+
+        /* aggregation by 7 days
+           sliding window all
+           custom fuction apply
+         */
         DataStream<Tuple2<Long, Map<Integer, Integer>>> weekStat = day
                 .timeWindowAll(Time.days(7), Time.hours(24))
                 .apply(new AggregateTimeSlotSliding())
                 .setParallelism(1);
         //weekStat.print();
 
+
+        //weekStat.writeAsText("result/query2_week").setParallelism(1);
+        //weekStat.writeAsCsv("result/query2_week.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+
+
+
+        /* aggregation by 30 days
+           sliding window all
+           custom function apply
+         */
         DataStream<Tuple2<Long, Map<Integer, Integer>>> monthStat = day
                 .timeWindowAll(Time.days(30), Time.days(1))
                 .apply(new AggregateTimeSlotSliding())
                 .setParallelism(1);
         //weekStat.print();
+
+
+        //monthStat.writeAsText("result/query2_month").setParallelism(1);
+        //monthStat.writeAsCsv("result/query2_month.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+
 
         environment.execute("Query2");
     }

@@ -11,6 +11,8 @@ import java.util.*;
 public class AggregateTimeSlot implements AllWindowFunction<Tuple3<Long, Integer, Integer>, Tuple2<Long, Map<Integer,Integer> >, TimeWindow> {
     @Override
     public void apply(TimeWindow timeWindow, Iterable<Tuple3<Long, Integer, Integer>> iterable, Collector<Tuple2<Long, Map<Integer,Integer> >> collector) throws Exception {
+
+       //TreeMap per inserire in modo ordinato -- usa alberi red-black
         Map<Integer,Integer> treeMap = new TreeMap<>();
 
         for( Tuple3<Long, Integer, Integer> t : iterable){

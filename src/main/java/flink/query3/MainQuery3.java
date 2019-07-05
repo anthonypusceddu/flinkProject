@@ -9,6 +9,7 @@ import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -29,8 +30,10 @@ import java.util.HashMap;
 public class MainQuery3 {
 
     public static void main(String[] args) throws Exception {
+
         //create environment
         StreamExecutionEnvironment environment = FlinkUtils.setUpEnvironment(args);
+
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
                 Config.TOPIC, Config.kafkaBrokerList, Config.consumerGroup);
@@ -42,7 +45,9 @@ public class MainQuery3 {
         DataStream<Post> stringInputStream = environment
                 .addSource(flinkKafkaConsumer);
 
-        //( UserId, Depth, Like, InReplyTo, CommentID)
+        /* query starts here
+           map to (UserID, depth, likes, commentToReply, CommentID)
+         */
         DataStream<Tuple5<Integer, Integer, Integer, Integer, Integer>> getData = stringInputStream
                 .map(new MapFunction<Post, Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
                     @Override
@@ -61,7 +66,10 @@ public class MainQuery3 {
                 .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
                 .process(new MyProcessFunction());
 
-        popularUserMap.print();
+        //popularUserMap.print();
+
+        //popularUserMap.writeAsText("result/query3").setParallelism(1);
+        popularUserMap.writeAsCsv("result/query3.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
         environment.execute("Query3");
 
