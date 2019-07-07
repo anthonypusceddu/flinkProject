@@ -58,15 +58,12 @@ public class MainQuery3 {
 
 
 
-        WindowedStream<Tuple2<Long, List<HashMap<Integer, Score>>>, Long, TimeWindow> popularUserMap = getData
+        DataStream<Tuple2<Long, List<HashMap<Integer, Score>>>> popularUserMap = getData
                 .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
-                .process(new MyProcessFunction())
-                .timeWindowAll(Time.hours(1))
-                .apply(new AggregateTimeSlot3())
-                .keyBy(t->t.f0)
-                .window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) );
+                .process(new MyProcessFunction());
+                //.apply(new AggregateTimeSlot3());
 
-
+        popularUserMap.print();
         environment.execute("Query3");
 
     }
