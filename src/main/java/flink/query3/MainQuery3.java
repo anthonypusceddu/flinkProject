@@ -1,38 +1,36 @@
 package flink.query3;
 
+import flink.query3.operators.AggregateTimeSlot3;
 import flink.query3.operators.MyProcessFunction;
-import model.Comment;
 import model.Post;
-import model.State;
+import model.Score;
 import org.apache.flink.api.common.functions.*;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.*;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.util.Collector;
+import redis.RedisJava;
+import redis.clients.jedis.Jedis;
 import utils.Config;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
 import utils.PostTimestampAssigner;
 
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainQuery3 {
 
     public static void main(String[] args) throws Exception {
-
         //create environment
         StreamExecutionEnvironment environment = FlinkUtils.setUpEnvironment(args);
+
+
 
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
@@ -45,9 +43,7 @@ public class MainQuery3 {
         DataStream<Post> stringInputStream = environment
                 .addSource(flinkKafkaConsumer);
 
-        /* query starts here
-           map to (UserID, depth, likes, commentToReply, CommentID)
-         */
+        //( UserId, Depth, Like, InReplyTo, CommentID)
         DataStream<Tuple5<Integer, Integer, Integer, Integer, Integer>> getData = stringInputStream
                 .map(new MapFunction<Post, Tuple5<Integer, Integer, Integer, Integer, Integer>>() {
                     @Override
@@ -62,14 +58,14 @@ public class MainQuery3 {
 
 
 
-        DataStream<Tuple2<Long,HashMap>> popularUserMap = getData
+        WindowedStream<Tuple2<Long, List<HashMap<Integer, Score>>>, Long, TimeWindow> popularUserMap = getData
                 .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
-                .process(new MyProcessFunction());
+                .process(new MyProcessFunction())
+                .timeWindowAll(Time.hours(1))
+                .apply(new AggregateTimeSlot3())
+                .keyBy(t->t.f0)
+                .window(SlidingEventTimeWindows.of(Time.hours(1),Time.seconds(10)) );
 
-        //popularUserMap.print();
-
-        //popularUserMap.writeAsText("result/query3").setParallelism(1);
-        popularUserMap.writeAsCsv("result/Query3/query3.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
         environment.execute("Query3");
 

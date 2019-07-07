@@ -6,6 +6,9 @@ public class Score {
 
     private int like;
     private int indirect_comment_count;
+
+
+
     private double score = 0.0;
 
     public Score(int like, int indirect_comment_count) {
@@ -39,6 +42,16 @@ public class Score {
         this.like+=i;
     }
 
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+
     public void clearScore(){
         this.like =0;
         this.indirect_comment_count = 0;
@@ -46,7 +59,7 @@ public class Score {
 
     @Override
     public String toString() {
-        return "Like: "+ this.like +"\t Count: "+ this.indirect_comment_count;
+        return "Like: "+ this.like +"\t Count: "+ this.indirect_comment_count+"\t Score: "+ this.score;
     }
 
     public void calculateScore() {
