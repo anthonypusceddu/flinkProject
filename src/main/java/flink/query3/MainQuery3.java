@@ -52,6 +52,7 @@ public class MainQuery3 {
                             post.setRecommendations(post.getRecommendations() + post.getRecommendations() * 10 / 100);
                         return new Tuple5<>(post.getUserID(), post.getDepth(), post.getRecommendations(), post.getInReplyTo(), post.getCommentID());
                     }
+
                 });
         //input ( UserId, Depth, Like, InReplyTo, CommentID)
         //return ( Ts, CommentIdOfLevel2, countOfLevel3Comment)
