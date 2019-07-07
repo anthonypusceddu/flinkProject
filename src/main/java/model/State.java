@@ -260,7 +260,7 @@ public class State {
             Object key = iter.next();
             Score value = (Score) h1.get(key);
 
-            if (hUserScoreWindow2.containsKey(key)) {
+            if (h2.containsKey(key)) {
                 //aggiornamento score
                 Score scoreWindow2 = h2.get(key);
                 Score newScore = new Score(scoreWindow2.getLike() + value.getLike(), scoreWindow2.getIndirect_comment_count() + value.getIndirect_comment_count());
