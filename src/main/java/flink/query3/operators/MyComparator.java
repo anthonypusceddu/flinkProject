@@ -5,7 +5,7 @@ import org.apache.flink.table.expressions.In;
 
 import java.util.*;
 
-public class myComparator implements Comparator {
+public class MyComparator implements Comparator {
 
 
     @Override

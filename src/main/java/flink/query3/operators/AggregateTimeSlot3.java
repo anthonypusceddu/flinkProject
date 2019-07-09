@@ -4,7 +4,6 @@ import model.Score;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.table.expressions.In;
 import org.apache.flink.util.Collector;
 
 import java.util.*;
@@ -30,7 +29,7 @@ public class AggregateTimeSlot3 implements AllWindowFunction< Tuple2<Long, HashM
             }
         }
 
-        Collections.sort(treeMap, new myComparator());
+        Collections.sort(treeMap, new MyComparator());
         //treeMap.subList(0,3);
 
         //System.out.println(treeMap.subList(0,3));
