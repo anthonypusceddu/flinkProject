@@ -78,7 +78,7 @@ public class MainQuery2 {
         //dayStat.print();
 
         //dayStat.writeAsText("result/query2_day").setParallelism(1);
-        dayStat.writeAsCsv("result/Query2/query2_day.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        dayStat.writeAsCsv("result/Query2/query2_day.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 
         /* aggregation by 7 days
@@ -93,7 +93,7 @@ public class MainQuery2 {
 
 
         //weekStat.writeAsText("result/query2_week").setParallelism(1);
-        //weekStat.writeAsCsv("result/query2_week.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        //weekStat.writeAsCsv("result/query2_week.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 
 
@@ -109,7 +109,7 @@ public class MainQuery2 {
 
 
         //monthStat.writeAsText("result/query2_month").setParallelism(1);
-        //monthStat.writeAsCsv("result/query2_month.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        //monthStat.writeAsCsv("result/query2_month.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 
         environment.execute("Query2");

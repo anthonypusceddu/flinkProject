@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TopN implements AllWindowFunction<Tuple2< String, Integer>, ArticleRank, TimeWindow> {
+public class TopN implements AllWindowFunction<Tuple2< String, Integer>, Tuple2<Long, List<Tuple2<String, Integer>>>, TimeWindow> {
 
     @Override
-    public void apply(TimeWindow timeWindow, Iterable<Tuple2< String, Integer>> iterable, Collector<ArticleRank> collector) throws Exception {
+    public void apply(TimeWindow timeWindow, Iterable<Tuple2< String, Integer>> iterable, Collector<Tuple2<Long, List<Tuple2<String, Integer>>>> collector) throws Exception {
         List<Tuple2<String, Integer>> list = new ArrayList<>();
         for( Tuple2<String, Integer> t : iterable){
             list.add(new Tuple2<>(t.f0,t.f1));
@@ -23,9 +23,6 @@ public class TopN implements AllWindowFunction<Tuple2< String, Integer>, Article
                 .stream()
                 .sorted((o1, o2) -> Integer.compare(o2.f1,o1.f1) )
                 .limit(3).collect(Collectors.toList());
-        ArticleRank rank  = new ArticleRank();
-        rank.setTimestamp(timeWindow.getEnd());
-        rank.setRank(list);
-        collector.collect(rank);
+        collector.collect(new Tuple2<>(timeWindow.getStart(),list));
     }
 }

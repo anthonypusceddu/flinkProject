@@ -103,7 +103,7 @@ public class TupleProducer {
         long current_time = first.getCreateDate();
         try {
             for (int i = 0; i<postList.size() -1; i++) {
-                Post current = postList.get(i);
+                //Post current = postList.get(i);
                 Post next = postList.get(i+1);
                 long rate = next.getCreateDate() - current_time; // millisecondi
                 //System.out.println(time);
@@ -114,13 +114,14 @@ public class TupleProducer {
                 System.out.println((scaledRate));
                 Thread.sleep(scaledRate);
                 final ProducerRecord<Long, Post> record = new ProducerRecord<>(Config.TOPIC, (long)i, next);
-                RecordMetadata metadata = producer.send(record).get();
-                System.out.printf("sent record(key=%s value=%s) " +
+                producer.send(record);
+                //RecordMetadata metadata = producer.send(record).get();
+              /*  System.out.printf("sent record(key=%s value=%s) " +
                                 "meta(partition=%d, offset=%d) time=%d\n",
                         record.key(), record.value(), metadata.partition(),
-                        metadata.offset(), rate);
+                        metadata.offset(), rate);*/
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e/*| ExecutionException e*/) {
             e.printStackTrace();
         } finally {
             producer.flush();

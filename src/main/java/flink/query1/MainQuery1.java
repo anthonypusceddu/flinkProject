@@ -67,30 +67,30 @@ public class MainQuery1 {
 
         //Scrittura su file -- cambiare nome del file _1hour, _24hours , _7days
         //a seconda della finestra
-        hour.writeAsCsv("result/Query1/query1_1hour.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
+        //hour.writeAsCsv("result/Query1/query1_1hour.csv", FileSystem.WriteMode.NO_OVERWRITE).setParallelism(1);
 
 
-        /*DataStream<ArticleRank> hourStat = hour
+        DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> hourStat = hour
                 .timeWindowAll(Time.hours(1))
                 .apply(new TopN())
                 .setParallelism(1);
-        hourStat.print();
-        //hourStat.writeAsCsv("1HourTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
+        //hourStat.print();
+        hourStat.writeAsCsv("result/Query1/1HourTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
         DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> DayStat = hour
                 .timeWindowAll(Time.hours(24),Time.hours(1))
                 .apply(new TopN_Sliding())
                 .setParallelism(1);
-*/
-        //DayStat.print();
-        //DayStat.writeAsCsv("1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
-        /*DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
+        //DayStat.print();
+        DayStat.writeAsCsv("result/Query1/1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
+
+        DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
                 .timeWindowAll(Time.days(7),Time.hours(24))
                 .apply(new TopN_Sliding())
-                .setParallelism(1);*/
+                .setParallelism(1);
         //WeekStat.print();
-        //WeekStat.writeAsCsv("1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);;
+        WeekStat.writeAsCsv("result/Query1/1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);;
 
 
 

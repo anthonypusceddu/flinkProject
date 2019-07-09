@@ -54,6 +54,11 @@
             <version>2.9.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-metrics-dropwizard</artifactId>
+            <version>1.8.0</version>
+        </dependency>
         <!-- kafka -->
         <dependency>
             <groupId>org.apache.flink</groupId>
