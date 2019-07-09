@@ -90,7 +90,8 @@ public class MainQuery1 {
                 .apply(new TopN_Sliding())
                 .setParallelism(1);
         //WeekStat.print();
-        WeekStat.writeAsCsv("result/Query1/1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);;
+        WeekStat.writeAsText("result/Query1/1WeekTopN.txt", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+       // WeekStat.writeAsCsv("result/Query1/1WeekTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
 
 
