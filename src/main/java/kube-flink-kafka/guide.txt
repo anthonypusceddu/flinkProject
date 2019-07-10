@@ -1,0 +1,12 @@
+KAFKA_ADVERTISED_HOST_NAME è l'ip del load balancer creato dal service
+
+kubectl create -f zookeeper.yml
+kubectl create -f kafka-service.yml
+kubectl create -f kafka-broker.yml
+
+kubectl delete -f jobmanager-deployment.yaml
+kubectl delete -f taskmanager-deployment.yaml
+kubectl delete -f jobmanager-service.yaml
+
+kafkacat -b ip_kafka_service -t test
+
