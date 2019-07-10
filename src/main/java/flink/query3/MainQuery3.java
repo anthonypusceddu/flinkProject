@@ -30,8 +30,6 @@ public class MainQuery3 {
         //create environment
         StreamExecutionEnvironment environment = FlinkUtils.setUpEnvironment(args);
 
-
-
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
                 Config.TOPIC, Config.kafkaBrokerList, Config.consumerGroup);

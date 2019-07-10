@@ -1,26 +1,21 @@
 package flink.query1;
 
 
-import flink.query1.operators.CountArticleComment;
 import flink.query1.operators.TopN;
 import flink.query1.operators.TopN_Sliding;
-import model.ArticleRank;
 import org.apache.flink.core.fs.FileSystem;
 import utils.Config;
 import model.Post;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
 import utils.PostTimestampAssigner;
 
-import javax.sql.DataSource;
 import java.util.*;
 
 public class MainQuery1 {
@@ -33,10 +28,6 @@ public class MainQuery1 {
         //Create kafka consumer
         FlinkKafkaConsumer<Post> flinkKafkaConsumer = KafkaUtils.createStringConsumerForTopic(
                 Config.TOPIC, Config.kafkaBrokerList, Config.consumerGroup);
-
-        // create kafka producer
-        FlinkKafkaProducer<ArticleRank> flinkKafkaProducer =
-                KafkaUtils.createStringProducer(Config.OutTOPIC, Config.kafkaBrokerList);
 
         //Take timestamp from kafka consumer tuple
         flinkKafkaConsumer.assignTimestampsAndWatermarks(new PostTimestampAssigner());

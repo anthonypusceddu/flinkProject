@@ -1,11 +1,8 @@
 package utils;
 
-import model.ArticleRank;
-import model.ArticleRankSchema;
 import model.Post;
 import model.PostSchema;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
 import java.util.Properties;
 
@@ -25,7 +22,4 @@ public class KafkaUtils {
         return consumer;
     }
 
-    public static FlinkKafkaProducer<ArticleRank> createStringProducer(String topic, String kafkaAddress) {
-        return new FlinkKafkaProducer<>(kafkaAddress, topic, new ArticleRankSchema());
-    }
 }
