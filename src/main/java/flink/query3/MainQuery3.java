@@ -59,7 +59,8 @@ public class MainQuery3 {
 
         DataStream<Tuple2<Long, List<HashMap<Integer, Score>>>> popularUserMap = getData
                 .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
-                .process(new MyProcessFunction());
+                .process(new MyProcessFunction())
+                .setParallelism(1);
 
         popularUserMap.print();
         environment.execute("Query3");

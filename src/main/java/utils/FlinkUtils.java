@@ -2,6 +2,8 @@ package utils;
 
 import model.Post;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.configuration.ConfigConstants;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.joda.time.DateTime;
@@ -13,7 +15,10 @@ public class FlinkUtils {
         // Checking input parameters
         ParameterTool params = ParameterTool.fromArgs(args);
         //create environment
-        StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        Configuration config = new Configuration();
+        config.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+        StreamExecutionEnvironment environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         // set EVENT_TIME
         environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
