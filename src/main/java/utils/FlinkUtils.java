@@ -12,8 +12,6 @@ public class FlinkUtils {
 
     public static StreamExecutionEnvironment setUpEnvironment(String[] args){
 
-        // Checking input parameters
-        ParameterTool params = ParameterTool.fromArgs(args);
         //create environment
 
         Configuration config = new Configuration();
@@ -21,6 +19,7 @@ public class FlinkUtils {
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         // set EVENT_TIME
         environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        environment.getConfig().setLatencyTrackingInterval(1L);
 
         return environment;
     }

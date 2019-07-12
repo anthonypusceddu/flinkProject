@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class State {
+
     //key: commentId_LvL2, value: CommentId_LvL1
     private HashMap<Integer,Integer> LvL2ToLvL1Map = new HashMap<>();
     //key: commentId_LvL1, value: UserID
@@ -30,7 +31,7 @@ public class State {
     private Long timestamp;
     //private boolean isFirstTimeInWindow= true;
 
-    Jedis jedis ;
+    private Jedis jedis ;
 
 
 
@@ -58,8 +59,6 @@ public class State {
             this.LvL1ToUsrIdMap.clear();
         }
 
-
-        //Thread.sleep(1000);
 
     }
 
@@ -106,14 +105,7 @@ public class State {
     }
 
     public void updateLikeScore(Integer usrID, Integer like){
-        //Deserialize
-        /*String r= this.jedis.hget("hUserScore",String.valueOf(usrID));
-        Score score=Deserializer.deserialize_score(r);
-        score.addLike(like);
-        score.calculateScore();
-        //serializzo
-        String score_serializer=Serializer.serialize_score(score);
-        this.jedis.hset("hUserScore",String.valueOf(usrID),score_serializer)*/
+
 
         Score s = this.hUserScore.get(usrID);
         s.addLike(1);
@@ -123,14 +115,6 @@ public class State {
 
 
     public void updateCountScore(Integer usrID){
-        //Deserialize
-        /*String r= this.jedis.hget("hUserScore",String.valueOf(usrID))
-        Score score=Deserializer.deserialize_score(r);
-        score.addCount(1);
-        score.calculateScore();
-        //serializzo
-        String score_serializer=Serializer.serialize_score(score);
-        this.jedis.hset("hUserScore",String.valueOf(usrID),score_serializer)*/
 
         Score s = this.hUserScore.get(usrID);
 
@@ -142,11 +126,7 @@ public class State {
     public void addUser(int usrID,int like) {
         this.hUserScore.put(usrID,new Score(like,0));
 
-        //String score_serialized= Serializer.serialize_score(new Score( like,0));
-        //String str_usrid=String.valueOf(usrID);
 
-        //this.jedis.hset("hUserScore",str_usrid,score_serialized)
-        //this.jedis.lpush("hUserScore",str_usrid);
     }
 
     public void addCommentToUserReference(int commentId, int usrID) {
@@ -221,18 +201,7 @@ public class State {
 
     public void resetWindow1(long l) {
         this.timestamp = l;
-        /*for ( String usr : this.jedis.hkeys("hUserScore")){
-            String r= this.jedis.hget("hUserScore",String.valueOf(usr));
 
-            //deserializer
-            Score score_deserialized=Deserializer.deserialize_score(r);
-            score_deserialized.clearScore();
-
-            //serializzo
-            String score_serialized=Serializer.serialize_score(score_deserialized);
-            this.jedis.hset("hUserScore",usr,score_serialized);
-
-        }*/
 
         //reset delle 3 hashmap di appoggio
         hUserScore.clear();

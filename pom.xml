@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <flink.version>1.7.2</flink.version>
+        <flink.version>1.8.0</flink.version>
         <scala.binary.version>2.11</scala.binary.version>
     </properties>
 
@@ -22,7 +22,6 @@
             <version>3.0.1</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
@@ -32,12 +31,6 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
 
@@ -90,13 +83,6 @@
             <version>4.6</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-
     </dependencies>
 
 
@@ -131,7 +117,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass></mainClass>
+                                    <mainClass>flink.query1.MainQuery1</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

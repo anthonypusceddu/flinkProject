@@ -1,20 +1,13 @@
 package flink.query3;
 
-import flink.query3.operators.AggregateTimeSlot3;
-import flink.query3.operators.MyProcessFunction;
+import flink.query3.operators.RankingProcessFunction;
 import model.Post;
 import model.Score;
 import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import redis.RedisJava;
-import redis.clients.jedis.Jedis;
 import utils.Config;
 import utils.FlinkUtils;
 import utils.KafkaUtils;
@@ -22,7 +15,6 @@ import utils.PostTimestampAssigner;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainQuery3 {
 
@@ -59,7 +51,7 @@ public class MainQuery3 {
 
         DataStream<Tuple2<Long, List<HashMap<Integer, Score>>>> popularUserMap = getData
                 .filter( tuple -> tuple.f0!=-1 && tuple.f2 !=-1)
-                .process(new MyProcessFunction())
+                .process(new RankingProcessFunction())
                 .setParallelism(1);
 
         popularUserMap.print();

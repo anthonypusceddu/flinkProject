@@ -66,7 +66,7 @@ public class MainQuery1 {
                 .apply(new TopN())
                 .setParallelism(1);
         //hourStat.print();
-        hourStat.writeAsCsv("result/Query1/1HourTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
+        hourStat.writeAsCsv("result/Query1/1HourTopN.txt", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
         DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> DayStat = hour
                 .timeWindowAll(Time.hours(24),Time.hours(1))
@@ -74,7 +74,7 @@ public class MainQuery1 {
                 .setParallelism(1);
 
         //DayStat.print();
-        DayStat.writeAsCsv("result/Query1/1DayTopN.csv", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
+        DayStat.writeAsCsv("result/Query1/1DayTopN.txt", FileSystem.WriteMode.OVERWRITE, "\n", ",").setParallelism(1);
 
         DataStream<Tuple2<Long, List<Tuple2<String, Integer>>>> WeekStat = hour
                 .timeWindowAll(Time.days(7),Time.hours(24))

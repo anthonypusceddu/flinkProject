@@ -1,7 +1,6 @@
 package flink.query3.operators;
 
 import model.Score;
-import org.apache.flink.table.expressions.In;
 
 import java.util.*;
 

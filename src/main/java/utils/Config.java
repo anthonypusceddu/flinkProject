@@ -11,8 +11,6 @@ public class Config {
 
     public static String kafkaBrokerList = "localhost:9092";
 
-    public static String kafkaBrokerGcloud = "35.224.45.69:9092";
-
     public static String consumerGroup = "consumer";
     public static String OutTOPIC = "out";
     public static double wa = 0.3; // peso dei like

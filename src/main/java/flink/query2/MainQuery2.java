@@ -7,6 +7,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -47,7 +48,7 @@ public class MainQuery2 {
           tumbling window of 24 hours / 7 days / 1 month
           custom function apply
          */
-        DataStream<Tuple3<Long, Integer, Integer>> day = stringInputStream
+        DataStream<Tuple2<Integer, Integer>> day = stringInputStream
                 .filter(new FilterFunction<Post>() {
                     @Override
                     public boolean filter(Post post) throws Exception {
@@ -62,7 +63,7 @@ public class MainQuery2 {
                 })
                 .keyBy(t -> t.f0)
                 .timeWindow(Time.hours(24))
-                .apply(new CountTimeSlotComment());
+                .sum(1);
 
         //day.print();
 
@@ -77,8 +78,8 @@ public class MainQuery2 {
                 .setParallelism(1);
         //dayStat.print();
 
-        //dayStat.writeAsText("result/query2_day").setParallelism(1);
-        dayStat.writeAsCsv("result/Query2/query2_day.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        dayStat.writeAsText("result/query2_day").setParallelism(1);
+        //dayStat.writeAsCsv("result/Query2/query2_day.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 
         /* aggregation by 7 days
@@ -92,7 +93,7 @@ public class MainQuery2 {
         //weekStat.print();
 
 
-        //weekStat.writeAsText("result/query2_week").setParallelism(1);
+        weekStat.writeAsText("result/query2_week").setParallelism(1);
         //weekStat.writeAsCsv("result/query2_week.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 
@@ -108,7 +109,7 @@ public class MainQuery2 {
         //weekStat.print();
 
 
-        //monthStat.writeAsText("result/query2_month").setParallelism(1);
+        monthStat.writeAsText("result/query2_month").setParallelism(1);
         //monthStat.writeAsCsv("result/query2_month.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
 

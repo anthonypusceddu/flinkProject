@@ -59,7 +59,7 @@ public class Score {
 
     @Override
     public String toString() {
-        return "Like: "+ this.like +"\t Count: "+ this.indirect_comment_count+"\t Score: "+ this.score;
+        return "Score: "+ this.score;
     }
 
     public void calculateScore() {
